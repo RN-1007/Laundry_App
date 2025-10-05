@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../component/home/add_order_page.dart';
 import '../component/home/order_list_page.dart';
+import '../component/kelola pelanggan/customer_list_page.dart';
 
 import '/models/customer_model.dart';
 import '/models/member_customer_model.dart';
@@ -112,6 +113,41 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _updateCustomer(Customer updatedCustomer) {
+    setState(() {
+      // 1. Perbarui data di daftar utama pelanggan
+      final custIndex = _customers.indexWhere(
+        (c) => c.id == updatedCustomer.id,
+      );
+      if (custIndex != -1) {
+        _customers[custIndex] = updatedCustomer;
+      }
+      _orders = _orders.map((order) {
+        if (order.customer.id == updatedCustomer.id) {
+          if (order is KiloanOrder) {
+            return KiloanOrder(
+              id: order.id,
+              customer: updatedCustomer, // data customer baru
+              entryDate: order.entryDate,
+              status: order.status,
+              weightInKg: order.weightInKg,
+              pricePerKg: order.pricePerKg,
+            );
+          } else if (order is SatuanOrder) {
+            return SatuanOrder(
+              id: order.id,
+              customer: updatedCustomer, // data customer baru
+              entryDate: order.entryDate,
+              status: order.status,
+              items: order.items,
+            );
+          }
+        }
+        return order;
+      }).toList();
+    });
+  }
+
   // Delete: Menghapus pesanan berdasarkan ID
   void _deleteOrder(String orderId) {
     setState(() {
@@ -187,40 +223,48 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 16),
           LayoutBuilder(
             builder: (context, constraints) {
-              final crossAxisCount = (constraints.maxWidth > 800) ? 4 : 2;
-              return GridView.count(
-                crossAxisCount: crossAxisCount,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: (crossAxisCount == 2) ? 1.8 : 2.2,
-                children: [
-                  SummaryCard(
-                    title: "Total Pendapatan",
-                    value: currencyFormatter.format(totalPendapatan),
-                    icon: Icons.monetization_on,
-                    color: Colors.deepPurple,
-                  ),
-                  SummaryCard(
-                    title: "Jumlah Pesanan",
-                    value: "$jumlahPesanan Pesanan",
-                    icon: Icons.receipt_long,
-                    color: Colors.blue,
-                  ),
-                  SummaryCard(
-                    title: "Pesanan Selesai",
-                    value: "$pesananSelesai Pesanan",
-                    icon: Icons.check_circle,
-                    color: Colors.green,
-                  ),
-                  SummaryCard(
-                    title: "Pelanggan Aktif",
-                    value: "$pelangganAktif Pelanggan",
-                    icon: Icons.people_alt,
-                    color: Colors.orange,
-                  ),
-                ],
+              final isDesktop = constraints.maxWidth > 800;
+              final crossAxisCount = isDesktop ? 4 : 2;
+              // Tinggi grid lebih besar di mobile agar card tidak terpotong
+              final gridHeight = isDesktop ? 140.0 : 380.0;
+              // Aspect ratio card lebih tinggi di mobile
+              final aspectRatio = isDesktop ? 2.2 : 0.85;
+              return SizedBox(
+                height: gridHeight,
+                child: GridView.count(
+                  crossAxisCount: crossAxisCount,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: aspectRatio,
+                  children: [
+                    SummaryCard(
+                      title: "Total Pendapatan",
+                      value: currencyFormatter.format(totalPendapatan),
+                      icon: Icons.monetization_on,
+                      color: Colors.deepPurple,
+                    ),
+                    SummaryCard(
+                      title: "Jumlah Pesanan",
+                      value: "$jumlahPesanan Pesanan",
+                      icon: Icons.receipt_long,
+                      color: Colors.blue,
+                    ),
+                    SummaryCard(
+                      title: "Pesanan Selesai",
+                      value: "$pesananSelesai Pesanan",
+                      icon: Icons.check_circle,
+                      color: Colors.green,
+                    ),
+                    SummaryCard(
+                      title: "Pelanggan Aktif",
+                      value: "$pelangganAktif Pelanggan",
+                      icon: Icons.people_alt,
+                      color: Colors.orange,
+                    ),
+                  ],
+                ),
               );
             },
           ),
@@ -232,24 +276,22 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 16),
           LayoutBuilder(
             builder: (context, constraints) {
-              final crossAxisCount = (constraints.maxWidth > 1000)
-                  ? 6
-                  : (constraints.maxWidth > 600 ? 4 : 3);
+              final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
               return GridView.builder(
                 itemCount: mainMenuItems.length,
                 shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+                physics:
+                    const ClampingScrollPhysics(), // biar bisa scroll jika konten lebih banyak
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
-                  childAspectRatio: 0.9,
+                  childAspectRatio: 1,
                 ),
                 itemBuilder: (context, index) {
                   final item = mainMenuItems[index];
                   VoidCallback onTapAction;
 
-                  // --- LOGIKA NAVIGASI DAN AKSI ---
                   switch (item['name']) {
                     case "Tambah Pesanan":
                       onTapAction = () {
@@ -276,9 +318,22 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ).then((_) {
-                          // Refresh state jika ada perubahan dari halaman daftar pesanan
                           setState(() {});
                         });
+                      };
+                      break;
+                    case "Kelola Pelanggan":
+                      onTapAction = () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CustomerListPage(
+                              customers: _customers,
+                              allOrders: _orders,
+                              onCustomerUpdated: _updateCustomer,
+                            ),
+                          ),
+                        );
                       };
                       break;
                     default:
