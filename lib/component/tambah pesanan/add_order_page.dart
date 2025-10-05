@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '/models/laundy_template_model.dart';
 import '/models/customer_model.dart';
 import '/models/member_customer_model.dart';
 import '/models/corporate_partner_model.dart';
@@ -10,11 +11,13 @@ import '/models/satuan_order_model.dart';
 class AddOrderPage extends StatefulWidget {
   final Function(Order) onOrderAdded;
   final List<Customer> existingCustomers;
+  final List<LaundryTemplate> templates; // Terima daftar template
 
   const AddOrderPage({
     super.key,
     required this.onOrderAdded,
     required this.existingCustomers,
+    required this.templates, // Tambahkan di constructor
   });
 
   @override
@@ -56,6 +59,111 @@ class _AddOrderPageState extends State<AddOrderPage> {
         'INV-${now.millisecondsSinceEpoch.toString().substring(7)}';
   }
 
+  // --- FUNGSI BARU UNTUK MEMILIH TEMPLATE KILOAN ---
+  void _showKiloanTemplatePicker() {
+    final kiloanTemplates = widget.templates
+        .where((t) => t.type == TemplateType.kiloan)
+        .toList();
+    if (kiloanTemplates.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak ada template kiloan.')),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Pilih Template Kiloan',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: kiloanTemplates.length,
+                itemBuilder: (context, index) {
+                  final template = kiloanTemplates[index];
+                  return ListTile(
+                    title: Text(template.name),
+                    trailing: Text('Rp ${template.price.toStringAsFixed(0)}'),
+                    onTap: () {
+                      setState(() {
+                        _pricePerKgController.text = template.price
+                            .toStringAsFixed(0);
+                      });
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // --- FUNGSI BARU UNTUK MEMILIH TEMPLATE SATUAN ---
+  void _showSatuanTemplatePicker() {
+    final satuanTemplates = widget.templates
+        .where((t) => t.type == TemplateType.satuan)
+        .toList();
+    if (satuanTemplates.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak ada template satuan.')),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Pilih Template Satuan',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: satuanTemplates.length,
+                itemBuilder: (context, index) {
+                  final template = satuanTemplates[index];
+                  return ListTile(
+                    title: Text(template.name),
+                    trailing: Text('Rp ${template.price.toStringAsFixed(0)}'),
+                    onTap: () {
+                      setState(() {
+                        _satuanItems.add(
+                          LaundryItem(
+                            name: template.name,
+                            quantity: 1,
+                            price: template.price,
+                          ),
+                        );
+                      });
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _addSatuanItem() {
     showDialog(
       context: context,
@@ -65,7 +173,7 @@ class _AddOrderPageState extends State<AddOrderPage> {
         double price = 0;
 
         return AlertDialog(
-          title: const Text('Tambah Item'),
+          title: const Text('Tambah Item Manual'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -253,7 +361,7 @@ class _AddOrderPageState extends State<AddOrderPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Invoice Number
+              // Invoice Number Card
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -304,11 +412,7 @@ class _AddOrderPageState extends State<AddOrderPage> {
                             ),
                           );
                         }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _status = value!;
-                          });
-                        },
+                        onChanged: (value) => setState(() => _status = value!),
                       ),
                     ],
                   ),
@@ -316,7 +420,7 @@ class _AddOrderPageState extends State<AddOrderPage> {
               ),
               const SizedBox(height: 16),
 
-              // Customer Selection
+              // Customer Selection Card
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -338,11 +442,8 @@ class _AddOrderPageState extends State<AddOrderPage> {
                               title: const Text('Pelanggan Existing'),
                               value: false,
                               groupValue: _isNewCustomer,
-                              onChanged: (value) {
-                                setState(() {
-                                  _isNewCustomer = value!;
-                                });
-                              },
+                              onChanged: (v) =>
+                                  setState(() => _isNewCustomer = v!),
                             ),
                           ),
                           Expanded(
@@ -350,18 +451,14 @@ class _AddOrderPageState extends State<AddOrderPage> {
                               title: const Text('Pelanggan Baru'),
                               value: true,
                               groupValue: _isNewCustomer,
-                              onChanged: (value) {
-                                setState(() {
-                                  _isNewCustomer = value!;
-                                });
-                              },
+                              onChanged: (v) =>
+                                  setState(() => _isNewCustomer = v!),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
-
-                      if (!_isNewCustomer) ...[
+                      if (!_isNewCustomer)
                         DropdownButtonFormField<Customer>(
                           value: _selectedCustomer,
                           decoration: const InputDecoration(
@@ -377,13 +474,10 @@ class _AddOrderPageState extends State<AddOrderPage> {
                               ),
                             );
                           }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedCustomer = value;
-                            });
-                          },
-                        ),
-                      ] else ...[
+                          onChanged: (value) =>
+                              setState(() => _selectedCustomer = value),
+                        )
+                      else ...[
                         TextFormField(
                           controller: _customerNameController,
                           decoration: const InputDecoration(
@@ -391,13 +485,10 @@ class _AddOrderPageState extends State<AddOrderPage> {
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.person),
                           ),
-                          validator: (value) {
-                            if (_isNewCustomer &&
-                                (value == null || value.isEmpty)) {
-                              return 'Nama pelanggan harus diisi';
-                            }
-                            return null;
-                          },
+                          validator: (v) =>
+                              (_isNewCustomer && (v == null || v.isEmpty))
+                              ? 'Nama pelanggan harus diisi'
+                              : null,
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
@@ -431,13 +522,9 @@ class _AddOrderPageState extends State<AddOrderPage> {
                               child: Text('Partner Korporat'),
                             ),
                           ],
-                          onChanged: (value) {
-                            setState(() {
-                              _customerType = value!;
-                            });
-                          },
+                          onChanged: (value) =>
+                              setState(() => _customerType = value!),
                         ),
-
                         if (_customerType == 'member') ...[
                           const SizedBox(height: 16),
                           TextFormField(
@@ -466,14 +553,10 @@ class _AddOrderPageState extends State<AddOrderPage> {
                                 child: Text('Gold (20% diskon)'),
                               ),
                             ],
-                            onChanged: (value) {
-                              setState(() {
-                                _memberTier = value!;
-                              });
-                            },
+                            onChanged: (value) =>
+                                setState(() => _memberTier = value!),
                           ),
                         ],
-
                         if (_customerType == 'corporate') ...[
                           const SizedBox(height: 16),
                           TextFormField(
@@ -492,7 +575,7 @@ class _AddOrderPageState extends State<AddOrderPage> {
               ),
               const SizedBox(height: 16),
 
-              // Order Type
+              // Order Details Card
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -514,11 +597,7 @@ class _AddOrderPageState extends State<AddOrderPage> {
                               title: const Text('Kiloan'),
                               value: 'kiloan',
                               groupValue: _orderType,
-                              onChanged: (value) {
-                                setState(() {
-                                  _orderType = value!;
-                                });
-                              },
+                              onChanged: (v) => setState(() => _orderType = v!),
                             ),
                           ),
                           Expanded(
@@ -526,17 +605,12 @@ class _AddOrderPageState extends State<AddOrderPage> {
                               title: const Text('Satuan'),
                               value: 'satuan',
                               groupValue: _orderType,
-                              onChanged: (value) {
-                                setState(() {
-                                  _orderType = value!;
-                                });
-                              },
+                              onChanged: (v) => setState(() => _orderType = v!),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
-
                       if (_orderType == 'kiloan') ...[
                         TextFormField(
                           controller: _weightController,
@@ -548,12 +622,9 @@ class _AddOrderPageState extends State<AddOrderPage> {
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Berat harus diisi';
-                            }
-                            return null;
-                          },
+                          validator: (v) => (v == null || v.isEmpty)
+                              ? 'Berat harus diisi'
+                              : null,
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
@@ -569,15 +640,38 @@ class _AddOrderPageState extends State<AddOrderPage> {
                             FilteringTextInputFormatter.digitsOnly,
                           ],
                         ),
-                      ] else ...[
-                        ElevatedButton.icon(
-                          onPressed: _addSatuanItem,
-                          icon: const Icon(Icons.add),
-                          label: const Text('Tambah Item'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurple,
-                            foregroundColor: Colors.white,
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton.icon(
+                            onPressed: _showKiloanTemplatePicker,
+                            icon: const Icon(Icons.bolt, size: 18),
+                            label: const Text('Gunakan Template'),
                           ),
+                        ),
+                      ] else ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: _addSatuanItem,
+                                icon: const Icon(Icons.add),
+                                label: const Text('Tambah Manual'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.deepPurple,
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: _showSatuanTemplatePicker,
+                                icon: const Icon(Icons.bolt),
+                                label: const Text('Dari Template'),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 16),
                         if (_satuanItems.isNotEmpty) ...[
@@ -607,11 +701,9 @@ class _AddOrderPageState extends State<AddOrderPage> {
                                         Icons.delete,
                                         color: Colors.red,
                                       ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _satuanItems.remove(item);
-                                        });
-                                      },
+                                      onPressed: () => setState(
+                                        () => _satuanItems.remove(item),
+                                      ),
                                     ),
                                   ],
                                 ),

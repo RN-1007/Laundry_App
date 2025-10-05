@@ -34,7 +34,8 @@ class _CustomerListPageState extends State<CustomerListPage> {
     }).toList();
   }
 
-  void _showEditCustomerDialog(Customer customer) {
+  // Mengubah fungsi menjadi async untuk menunggu dialog ditutup
+  void _showEditCustomerDialog(Customer customer) async {
     final formKey = GlobalKey<FormState>();
     String customerType = 'Reguler';
     if (customer is MemberCustomer) {
@@ -53,8 +54,11 @@ class _CustomerListPageState extends State<CustomerListPage> {
       text: (customer is CorporatePartner) ? customer.companyName : '',
     );
 
-    showDialog(
+    // Menunggu hasil dari dialog
+    await showDialog(
       context: context,
+      barrierDismissible:
+          false, // Mencegah dialog tertutup saat area luar diklik
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
@@ -182,6 +186,9 @@ class _CustomerListPageState extends State<CustomerListPage> {
         );
       },
     );
+
+    // Memanggil setState() SETELAH dialog ditutup untuk me-refresh UI
+    setState(() {});
   }
 
   @override

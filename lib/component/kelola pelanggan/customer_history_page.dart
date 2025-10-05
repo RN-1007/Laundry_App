@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '/models/customer_model.dart';
 import '/models/order_model.dart';
-import '/component/order_detail_page.dart';
+import '../order_detail_page.dart';
 
 class CustomerHistoryPage extends StatelessWidget {
   final Customer customer;
