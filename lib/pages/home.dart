@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../component/home/add_order_page.dart';
 import '../component/home/order_list_page.dart';
 
 import '/models/customer_model.dart';
@@ -9,75 +10,114 @@ import '/models/order_model.dart';
 import '/models/kiloan_order_model.dart';
 import '/models/satuan_order_model.dart';
 
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
-  // Data dummy kita\
-  // letakkan di sini agar bisa diakses
-  static final budi = MemberCustomer(
-    id: "CUST-01",
-    name: "Budi Santoso",
-    phoneNumber: "08123",
-    memberId: "MEM-001",
-    memberTier: "Gold",
-  );
-  static final citra = CorporatePartner(
-    id: "CUST-02",
-    name: "Ibu Citra",
-    phoneNumber: "08124",
-    companyName: "Hotel Merdeka",
-  );
-  static final ahmad = RegularCustomer(
-    id: "CUST-03",
-    name: "Ahmad Yani",
-    phoneNumber: "08125",
-  );
-  static final dewi = MemberCustomer(
-    id: "CUST-04",
-    name: "Dewi Anggraini",
-    phoneNumber: "08126",
-    memberId: "MEM-002",
-    memberTier: "Silver",
-  );
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
 
-  final List<Order> orders = [
-    KiloanOrder(
-      id: "INV-001",
-      customer: budi,
-      status: OrderStatus.selesai,
-      entryDate: "16 Sep 2025",
-      weightInKg: 3,
-      pricePerKg: 15000,
+class _HomePageState extends State<HomePage> {
+  // Data dummy dan pelanggan kita pindahkan ke dalam state
+  final List<Customer> _customers = [
+    MemberCustomer(
+      id: "CUST-01",
+      name: "Budi Santoso",
+      phoneNumber: "08123",
+      memberId: "MEM-001",
+      memberTier: "Gold",
     ),
-    KiloanOrder(
-      id: "INV-002",
-      customer: citra,
-      status: OrderStatus.prosesCuci,
-      entryDate: "16 Sep 2025",
-      weightInKg: 25,
-      pricePerKg: 12000,
+    CorporatePartner(
+      id: "CUST-02",
+      name: "Ibu Citra",
+      phoneNumber: "08124",
+      companyName: "Hotel Merdeka",
     ),
-    SatuanOrder(
-      id: "INV-003",
-      customer: ahmad,
-      status: OrderStatus.menungguDiambil,
-      entryDate: "15 Sep 2025",
-      items: [
-        LaundryItem(name: "Jaket", quantity: 1, price: 20000),
-        LaundryItem(name: "Celana Jeans", quantity: 1, price: 12000),
-      ],
-    ),
-    SatuanOrder(
-      id: "INV-004",
-      customer: dewi,
-      status: OrderStatus.selesai,
-      entryDate: "15 Sep 2025",
-      items: [
-        LaundryItem(name: "Set Sprei", quantity: 1, price: 60000),
-        LaundryItem(name: "Gorden", quantity: 2, price: 25000),
-      ],
+    RegularCustomer(id: "CUST-03", name: "Ahmad Yani", phoneNumber: "08125"),
+    MemberCustomer(
+      id: "CUST-04",
+      name: "Dewi Anggraini",
+      phoneNumber: "08126",
+      memberId: "MEM-002",
+      memberTier: "Silver",
     ),
   ];
+
+  late List<Order> _orders;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inisialisasi data order awal
+    _orders = [
+      KiloanOrder(
+        id: "INV-001",
+        customer: _customers[0],
+        status: OrderStatus.selesai,
+        entryDate: "16 Sep 2025",
+        weightInKg: 3,
+        pricePerKg: 15000,
+      ),
+      KiloanOrder(
+        id: "INV-002",
+        customer: _customers[1],
+        status: OrderStatus.prosesCuci,
+        entryDate: "16 Sep 2025",
+        weightInKg: 25,
+        pricePerKg: 12000,
+      ),
+      SatuanOrder(
+        id: "INV-003",
+        customer: _customers[2],
+        status: OrderStatus.menungguDiambil,
+        entryDate: "15 Sep 2025",
+        items: [
+          LaundryItem(name: "Jaket", quantity: 1, price: 20000),
+          LaundryItem(name: "Celana Jeans", quantity: 1, price: 12000),
+        ],
+      ),
+      SatuanOrder(
+        id: "INV-004",
+        customer: _customers[3],
+        status: OrderStatus.selesai,
+        entryDate: "15 Sep 2025",
+        items: [
+          LaundryItem(name: "Set Sprei", quantity: 1, price: 60000),
+          LaundryItem(name: "Gorden", quantity: 2, price: 25000),
+        ],
+      ),
+    ];
+  }
+
+  // --- FUNGSI UNTUK CRUD ---
+
+  // Create: Menambah pesanan baru
+  void _addOrder(Order newOrder) {
+    setState(() {
+      _orders.add(newOrder);
+      // Jika pelanggan baru, tambahkan juga ke daftar pelanggan
+      if (!_customers.any((c) => c.id == newOrder.customer.id)) {
+        _customers.add(newOrder.customer);
+      }
+    });
+  }
+
+  // Update: Memperbarui pesanan yang ada
+  void _updateOrder(Order updatedOrder) {
+    setState(() {
+      final index = _orders.indexWhere((o) => o.id == updatedOrder.id);
+      if (index != -1) {
+        _orders[index] = updatedOrder;
+      }
+    });
+  }
+
+  // Delete: Menghapus pesanan berdasarkan ID
+  void _deleteOrder(String orderId) {
+    setState(() {
+      _orders.removeWhere((o) => o.id == orderId);
+    });
+  }
 
   // Data untuk menu utama
   final List<Map<String, dynamic>> mainMenuItems = const [
@@ -103,16 +143,16 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Kalkulasi dinamis dari data model
-    final totalPendapatan = orders.fold<double>(
+    // Kalkulasi dinamis dari data state
+    final totalPendapatan = _orders.fold<double>(
       0,
       (sum, order) => sum + order.finalTotalValue,
     );
-    final jumlahPesanan = orders.length;
-    final pesananSelesai = orders
+    final jumlahPesanan = _orders.length;
+    final pesananSelesai = _orders
         .where((o) => o.status == OrderStatus.selesai)
         .length;
-    final pelangganAktif = orders.map((o) => o.customer.id).toSet().length;
+    final pelangganAktif = _orders.map((o) => o.customer.id).toSet().length;
 
     // Formatter untuk menampilkan angka sebagai Rupiah
     final currencyFormatter = NumberFormat.currency(
@@ -209,21 +249,48 @@ class HomePage extends StatelessWidget {
                   final item = mainMenuItems[index];
                   VoidCallback onTapAction;
 
-                  if (item['name'] == "Daftar Pesanan") {
-                    onTapAction = () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OrderListPage(orders: orders),
-                        ),
-                      );
-                    };
-                  } else {
-                    onTapAction = () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Anda memilih ${item['name']}")),
-                      );
-                    };
+                  // --- LOGIKA NAVIGASI DAN AKSI ---
+                  switch (item['name']) {
+                    case "Tambah Pesanan":
+                      onTapAction = () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddOrderPage(
+                              onOrderAdded: _addOrder,
+                              existingCustomers: _customers,
+                            ),
+                          ),
+                        );
+                      };
+                      break;
+                    case "Daftar Pesanan":
+                      onTapAction = () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OrderListPage(
+                              orders: _orders,
+                              onOrderUpdated: _updateOrder,
+                              onOrderDeleted: _deleteOrder,
+                            ),
+                          ),
+                        ).then((_) {
+                          // Refresh state jika ada perubahan dari halaman daftar pesanan
+                          setState(() {});
+                        });
+                      };
+                      break;
+                    default:
+                      onTapAction = () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Fitur '${item['name']}' belum diimplementasikan.",
+                            ),
+                          ),
+                        );
+                      };
                   }
 
                   return QuickActionButton(
