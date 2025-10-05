@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '/component/order_list_page.dart';
+import '../component/home/order_list_page.dart';
 
 import '/models/customer_model.dart';
 import '/models/member_customer_model.dart';
