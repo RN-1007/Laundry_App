@@ -13,9 +13,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     Timer(
-      const Duration(seconds: 1),
+      const Duration(seconds: 2),
       () => Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
@@ -33,11 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Ganti dengan logo aplikasi Anda jika ada
-            Icon(
-              Icons.local_laundry_service,
-              size: 100,
-              color: Colors.white,
-            ),
+            Icon(Icons.local_laundry_service, size: 100, color: Colors.white),
             const SizedBox(height: 24),
             Text(
               'Laundry Admin',

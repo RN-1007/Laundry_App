@@ -19,12 +19,10 @@ class _LoginPageState extends State<LoginPage> {
     String username = _usernameController.text.trim();
     String password = _passwordController.text.trim();
 
-    if (username == "admin@laundry.com" && password == "12345") {
+    if (username == "admin" && password == "1") {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => MyHomePage(username: username),
-        ),
+        MaterialPageRoute(builder: (context) => MyHomePage(username: username)),
       );
     } else {
       setState(() {
@@ -119,7 +117,10 @@ class _LoginPageState extends State<LoginPage> {
                           padding: const EdgeInsets.only(bottom: 10.0),
                           child: Text(
                             _errorMessage,
-                            style: const TextStyle(color: Colors.red, fontSize: 14),
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                       SizedBox(
@@ -136,7 +137,10 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           child: const Text(
                             "Login",
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
