@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '/models/laundy_template_model.dart';
+import 'package:LAUNDRY_APP/models/laundy_template_model.dart';
 import '/models/customer_model.dart';
 import '/models/member_customer_model.dart';
 import '/models/corporate_partner_model.dart';
@@ -11,13 +11,13 @@ import '/models/satuan_order_model.dart';
 class AddOrderPage extends StatefulWidget {
   final Function(Order) onOrderAdded;
   final List<Customer> existingCustomers;
-  final List<LaundryTemplate> templates; // Terima daftar template
+  final List<LaundryTemplate> templates;
 
   const AddOrderPage({
     super.key,
     required this.onOrderAdded,
     required this.existingCustomers,
-    required this.templates, // Tambahkan di constructor
+    required this.templates,
   });
 
   @override
@@ -59,7 +59,6 @@ class _AddOrderPageState extends State<AddOrderPage> {
         'INV-${now.millisecondsSinceEpoch.toString().substring(7)}';
   }
 
-  // --- FUNGSI BARU UNTUK MEMILIH TEMPLATE KILOAN ---
   void _showKiloanTemplatePicker() {
     final kiloanTemplates = widget.templates
         .where((t) => t.type == TemplateType.kiloan)
@@ -109,7 +108,6 @@ class _AddOrderPageState extends State<AddOrderPage> {
     );
   }
 
-  // --- FUNGSI BARU UNTUK MEMILIH TEMPLATE SATUAN ---
   void _showSatuanTemplatePicker() {
     final satuanTemplates = widget.templates
         .where((t) => t.type == TemplateType.satuan)
@@ -361,7 +359,6 @@ class _AddOrderPageState extends State<AddOrderPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Invoice Number Card
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -419,8 +416,6 @@ class _AddOrderPageState extends State<AddOrderPage> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Customer Selection Card
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -439,7 +434,7 @@ class _AddOrderPageState extends State<AddOrderPage> {
                         children: [
                           Expanded(
                             child: RadioListTile<bool>(
-                              title: const Text('Pelanggan Existing'),
+                              title: const Text('Lama'),
                               value: false,
                               groupValue: _isNewCustomer,
                               onChanged: (v) =>
@@ -448,7 +443,7 @@ class _AddOrderPageState extends State<AddOrderPage> {
                           ),
                           Expanded(
                             child: RadioListTile<bool>(
-                              title: const Text('Pelanggan Baru'),
+                              title: const Text('Baru'),
                               value: true,
                               groupValue: _isNewCustomer,
                               onChanged: (v) =>
@@ -466,11 +461,15 @@ class _AddOrderPageState extends State<AddOrderPage> {
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.person),
                           ),
+                          // --- PERUBAHAN DI SINI ---
+                          isExpanded: true, // Membuat dropdown memenuhi lebar
                           items: widget.existingCustomers.map((customer) {
                             return DropdownMenuItem(
                               value: customer,
                               child: Text(
                                 '${customer.name} (${customer.customerType})',
+                                overflow: TextOverflow
+                                    .ellipsis, // Menambahkan elipsis jika teks terlalu panjang
                               ),
                             );
                           }).toList(),
@@ -574,8 +573,6 @@ class _AddOrderPageState extends State<AddOrderPage> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Order Details Card
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -717,8 +714,6 @@ class _AddOrderPageState extends State<AddOrderPage> {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Submit Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

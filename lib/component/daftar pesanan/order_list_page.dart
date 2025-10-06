@@ -147,29 +147,42 @@ class _OrderListPageState extends State<OrderListPage> {
                 const SizedBox(height: 12),
                 // Filter and Sort Row
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
+                      // --- PERUBAHAN DI SINI ---
                       child: DropdownButtonFormField<String>(
                         value: _filterStatus,
+                        isExpanded:
+                            true, // Membuat item terpilih tidak overflow
                         decoration: InputDecoration(
-                          labelText: 'Filter Status',
+                          hintText: 'Status', // Menggunakan hintText
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 12,
-                            vertical: 8,
+                            vertical: 14, // Disesuaikan agar sejajar
                           ),
                         ),
                         items: const [
-                          DropdownMenuItem(value: 'all', child: Text('Semua')),
+                          DropdownMenuItem(
+                            value: 'all',
+                            child: Text('Semua Status'),
+                          ),
                           DropdownMenuItem(
                             value: 'proses',
                             child: Text('Proses Cuci'),
                           ),
                           DropdownMenuItem(
                             value: 'menunggu',
-                            child: Text('Menunggu Diambil'),
+                            // Menambahkan Expanded agar tidak overflow
+                            child: Expanded(
+                              child: Text(
+                                'Menunggu Diambil',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ),
                           DropdownMenuItem(
                             value: 'selesai',
@@ -185,16 +198,18 @@ class _OrderListPageState extends State<OrderListPage> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
+                      // --- DAN DI SINI ---
                       child: DropdownButtonFormField<String>(
                         value: _sortBy,
+                        isExpanded: true,
                         decoration: InputDecoration(
-                          labelText: 'Urutkan',
+                          hintText: 'Urutkan',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 12,
-                            vertical: 8,
+                            vertical: 14,
                           ),
                         ),
                         items: const [

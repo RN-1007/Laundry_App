@@ -13,7 +13,9 @@ class ProfilePage extends StatelessWidget {
           // Header Profil
           Card(
             elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Row(
@@ -53,7 +55,9 @@ class ProfilePage extends StatelessWidget {
           // Informasi Laundry
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Column(
               children: [
                 _buildInfoTile(
@@ -62,13 +66,13 @@ class ProfilePage extends StatelessWidget {
                   subtitle: "Fena Laundry",
                 ),
                 const Divider(height: 1, indent: 16, endIndent: 16),
-                 _buildInfoTile(
+                _buildInfoTile(
                   icon: Icons.location_on_rounded,
                   title: "Alamat",
                   subtitle: "Jl. Merdeka No. 123, Jakarta",
                 ),
-                 const Divider(height: 1, indent: 16, endIndent: 16),
-                 _buildInfoTile(
+                const Divider(height: 1, indent: 16, endIndent: 16),
+                _buildInfoTile(
                   icon: Icons.phone_rounded,
                   title: "Telepon",
                   subtitle: "0812-3456-7890",
@@ -77,43 +81,17 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          
-          // Pengaturan Akun
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Column(
-              children: [
-                 _buildActionTile(
-                  context,
-                  icon: Icons.edit_rounded,
-                  title: "Edit Profil Laundry",
-                  onTap: () {},
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16),
-                 _buildActionTile(
-                  context,
-                  icon: Icons.lock_reset_rounded,
-                  title: "Ubah Password",
-                  onTap: () {},
-                ),
-                 const Divider(height: 1, indent: 16, endIndent: 16),
-                 _buildActionTile(
-                  context,
-                  icon: Icons.notifications_rounded,
-                  title: "Notifikasi",
-                  onTap: () {},
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
   }
 
   // Widget helper untuk baris informasi
-  ListTile _buildInfoTile({required IconData icon, required String title, required String subtitle}) {
+  ListTile _buildInfoTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
     return ListTile(
       leading: Icon(icon, color: Colors.deepPurple),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
@@ -122,12 +100,17 @@ class ProfilePage extends StatelessWidget {
   }
 
   // Widget helper untuk baris aksi
-  ListTile _buildActionTile(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap}) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.deepPurple),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-      onTap: onTap,
-    );
-  }
+  // ListTile _buildActionTile(
+  //   BuildContext context, {
+  //   required IconData icon,
+  //   required String title,
+  //   required VoidCallback onTap,
+  // }) {
+  //   return ListTile(
+  //     leading: Icon(icon, color: Colors.deepPurple),
+  //     title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+  //     trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+  //     onTap: onTap,
+  //   );
+  // }
 }

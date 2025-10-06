@@ -4,205 +4,50 @@ import '../component/tambah pesanan/add_order_page.dart';
 import '../component/daftar pesanan/order_list_page.dart';
 import '../component/kelola pelanggan/customer_list_page.dart';
 import '../component/kelola layanan/template_layanan_page.dart';
+import '../component/laporan penjualan/laporan_penjualan_page.dart';
+import '../component/atur promo/atur_promo_page.dart';
 
+import '/models/promo_model.dart';
 import '/models/laundy_template_model.dart';
 import '/models/customer_model.dart';
-import '/models/member_customer_model.dart';
-import '/models/corporate_partner_model.dart';
 import '/models/order_model.dart';
-import '/models/kiloan_order_model.dart';
-import '/models/satuan_order_model.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomePage extends StatelessWidget {
+  // Menerima semua data dan fungsi dari parent (MyHomePage)
+  final List<Customer> customers;
+  final List<Order> orders;
+  final List<LaundryTemplate> templates;
+  final List<Promo> promos;
+  final Function(Order) onAddOrder;
+  final Function(Order) onUpdateOrder;
+  final Function(String) onDeleteOrder;
+  final Function(Customer) onUpdateCustomer;
+  final Function(LaundryTemplate) onAddTemplate;
+  final Function(LaundryTemplate) onUpdateTemplate;
+  final Function(String) onDeleteTemplate;
+  final Function(Promo) onAddPromo;
+  final Function(Promo) onUpdatePromo;
+  final Function(String) onDeletePromo;
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
+  const HomePage({
+    super.key,
+    required this.customers,
+    required this.orders,
+    required this.templates,
+    required this.promos,
+    required this.onAddOrder,
+    required this.onUpdateOrder,
+    required this.onDeleteOrder,
+    required this.onUpdateCustomer,
+    required this.onAddTemplate,
+    required this.onUpdateTemplate,
+    required this.onDeleteTemplate,
+    required this.onAddPromo,
+    required this.onUpdatePromo,
+    required this.onDeletePromo,
+  });
 
-class _HomePageState extends State<HomePage> {
-  // Data utama aplikasi
-  final List<Customer> _customers = [
-    MemberCustomer(
-      id: "CUST-01",
-      name: "Budi Santoso",
-      phoneNumber: "08123",
-      memberId: "MEM-001",
-      memberTier: "Gold",
-    ),
-    CorporatePartner(
-      id: "CUST-02",
-      name: "Ibu Citra",
-      phoneNumber: "08124",
-      companyName: "Hotel Merdeka",
-    ),
-    RegularCustomer(id: "CUST-03", name: "Ahmad Yani", phoneNumber: "08125"),
-    MemberCustomer(
-      id: "CUST-04",
-      name: "Dewi Anggraini",
-      phoneNumber: "08126",
-      memberId: "MEM-002",
-      memberTier: "Silver",
-    ),
-  ];
-
-  late List<Order> _orders;
-  late List<LaundryTemplate> _templates;
-
-  @override
-  void initState() {
-    super.initState();
-    // Inisialisasi data order awal
-    _orders = [
-      KiloanOrder(
-        id: "INV-001",
-        customer: _customers[0],
-        status: OrderStatus.selesai,
-        entryDate: "16 Sep 2025",
-        weightInKg: 3,
-        pricePerKg: 15000,
-      ),
-      KiloanOrder(
-        id: "INV-002",
-        customer: _customers[1],
-        status: OrderStatus.prosesCuci,
-        entryDate: "16 Sep 2025",
-        weightInKg: 25,
-        pricePerKg: 12000,
-      ),
-      SatuanOrder(
-        id: "INV-003",
-        customer: _customers[2],
-        status: OrderStatus.menungguDiambil,
-        entryDate: "15 Sep 2025",
-        items: [
-          LaundryItem(name: "Jaket", quantity: 1, price: 20000),
-          LaundryItem(name: "Celana Jeans", quantity: 1, price: 12000),
-        ],
-      ),
-      SatuanOrder(
-        id: "INV-004",
-        customer: _customers[3],
-        status: OrderStatus.selesai,
-        entryDate: "15 Sep 2025",
-        items: [
-          LaundryItem(name: "Set Sprei", quantity: 1, price: 60000),
-          LaundryItem(name: "Gorden", quantity: 2, price: 25000),
-        ],
-      ),
-    ];
-
-    // Inisialisasi data dummy template
-    _templates = [
-      LaundryTemplate(
-        id: 'TMP-01',
-        name: 'Cuci Setrika Reguler',
-        type: TemplateType.kiloan,
-        price: 15000,
-      ),
-      LaundryTemplate(
-        id: 'TMP-02',
-        name: 'Cuci Kering Ekspress',
-        type: TemplateType.kiloan,
-        price: 25000,
-      ),
-      LaundryTemplate(
-        id: 'TMP-03',
-        name: 'Bed Cover King',
-        type: TemplateType.satuan,
-        price: 60000,
-      ),
-      LaundryTemplate(
-        id: 'TMP-04',
-        name: 'Jaket Kulit',
-        type: TemplateType.satuan,
-        price: 50000,
-      ),
-    ];
-  }
-
-  // --- FUNGSI UNTUK MANAJEMEN DATA ---
-
-  void _addOrder(Order newOrder) {
-    setState(() {
-      _orders.add(newOrder);
-      if (!_customers.any((c) => c.id == newOrder.customer.id)) {
-        _customers.add(newOrder.customer);
-      }
-    });
-  }
-
-  void _updateOrder(Order updatedOrder) {
-    setState(() {
-      final index = _orders.indexWhere((o) => o.id == updatedOrder.id);
-      if (index != -1) {
-        _orders[index] = updatedOrder;
-      }
-    });
-  }
-
-  void _deleteOrder(String orderId) {
-    setState(() {
-      _orders.removeWhere((o) => o.id == orderId);
-    });
-  }
-
-  void _updateCustomer(Customer updatedCustomer) {
-    setState(() {
-      final custIndex = _customers.indexWhere(
-        (c) => c.id == updatedCustomer.id,
-      );
-      if (custIndex != -1) {
-        _customers[custIndex] = updatedCustomer;
-      }
-      _orders = _orders.map((order) {
-        if (order.customer.id == updatedCustomer.id) {
-          if (order is KiloanOrder) {
-            return KiloanOrder(
-              id: order.id,
-              customer: updatedCustomer,
-              entryDate: order.entryDate,
-              status: order.status,
-              weightInKg: order.weightInKg,
-              pricePerKg: order.pricePerKg,
-            );
-          } else if (order is SatuanOrder) {
-            return SatuanOrder(
-              id: order.id,
-              customer: updatedCustomer,
-              entryDate: order.entryDate,
-              status: order.status,
-              items: order.items,
-            );
-          }
-        }
-        return order;
-      }).toList();
-    });
-  }
-
-  void _addTemplate(LaundryTemplate template) {
-    setState(() {
-      _templates.add(template);
-    });
-  }
-
-  void _updateTemplate(LaundryTemplate updatedTemplate) {
-    setState(() {
-      final index = _templates.indexWhere((t) => t.id == updatedTemplate.id);
-      if (index != -1) {
-        _templates[index] = updatedTemplate;
-      }
-    });
-  }
-
-  void _deleteTemplate(String templateId) {
-    setState(() {
-      _templates.removeWhere((t) => t.id == templateId);
-    });
-  }
-
-  // --- DATA UNTUK UI ---
+  // Data untuk UI Menu dikembalikan ke warna solid
   final List<Map<String, dynamic>> mainMenuItems = const [
     {
       "name": "Tambah Pesanan",
@@ -226,15 +71,15 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final totalPendapatan = _orders.fold<double>(
+    final totalPendapatan = orders.fold<double>(
       0,
       (sum, order) => sum + order.finalTotalValue,
     );
-    final jumlahPesanan = _orders.length;
-    final pesananSelesai = _orders
+    final jumlahPesanan = orders.length;
+    final pesananSelesai = orders
         .where((o) => o.status == OrderStatus.selesai)
         .length;
-    final pelangganAktif = _orders.map((o) => o.customer.id).toSet().length;
+    final pelangganAktif = orders.map((o) => o.customer.id).toSet().length;
 
     final currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
@@ -242,8 +87,11 @@ class _HomePageState extends State<HomePage> {
       decimalDigits: 0,
     );
 
+    // Mengembalikan ke struktur awal dengan SingleChildScrollView
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(
+        16.0,
+      ).copyWith(bottom: 80), // Tambah padding bawah
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -263,7 +111,11 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 24),
           const Text(
             "Ringkasan Kinerja",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
           const SizedBox(height: 16),
           LayoutBuilder(
@@ -275,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                 physics: const NeverScrollableScrollPhysics(),
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: (crossAxisCount == 2) ? 1.8 : 2.2,
+                childAspectRatio: (crossAxisCount == 2) ? 1.6 : 2.2,
                 children: [
                   SummaryCard(
                     title: "Total Pendapatan",
@@ -308,7 +160,11 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 32),
           const Text(
             "Menu Utama",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
           const SizedBox(height: 16),
           LayoutBuilder(
@@ -329,16 +185,15 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   final item = mainMenuItems[index];
                   VoidCallback onTapAction;
-
                   switch (item['name']) {
                     case "Tambah Pesanan":
                       onTapAction = () => Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => AddOrderPage(
-                            onOrderAdded: _addOrder,
-                            existingCustomers: _customers,
-                            templates: _templates,
+                            onOrderAdded: onAddOrder,
+                            existingCustomers: customers,
+                            templates: templates,
                           ),
                         ),
                       );
@@ -348,21 +203,21 @@ class _HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => OrderListPage(
-                            orders: _orders,
-                            onOrderUpdated: _updateOrder,
-                            onOrderDeleted: _deleteOrder,
+                            orders: orders,
+                            onOrderUpdated: onUpdateOrder,
+                            onOrderDeleted: onDeleteOrder,
                           ),
                         ),
-                      ).then((_) => setState(() {}));
+                      );
                       break;
                     case "Kelola Pelanggan":
                       onTapAction = () => Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => CustomerListPage(
-                            customers: _customers,
-                            allOrders: _orders,
-                            onCustomerUpdated: _updateCustomer,
+                            customers: customers,
+                            allOrders: orders,
+                            onCustomerUpdated: onUpdateCustomer,
                           ),
                         ),
                       );
@@ -372,11 +227,32 @@ class _HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => TemplateLayananPage(
-                            templates: _templates,
-                            onTemplateAdded: _addTemplate,
-                            // --- KIRIM FUNGSI UPDATE ---
-                            onTemplateUpdated: _updateTemplate,
-                            onTemplateDeleted: _deleteTemplate,
+                            templates: templates,
+                            onTemplateAdded: onAddTemplate,
+                            onTemplateUpdated: onUpdateTemplate,
+                            onTemplateDeleted: onDeleteTemplate,
+                          ),
+                        ),
+                      );
+                      break;
+                    case "Laporan Penjualan":
+                      onTapAction = () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              LaporanPenjualanPage(allOrders: orders),
+                        ),
+                      );
+                      break;
+                    case "Atur Promo":
+                      onTapAction = () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AturPromoPage(
+                            promos: promos,
+                            onPromoAdded: onAddPromo,
+                            onPromoUpdated: onUpdatePromo,
+                            onPromoDeleted: onDeletePromo,
                           ),
                         ),
                       );
@@ -391,7 +267,6 @@ class _HomePageState extends State<HomePage> {
                             ),
                           );
                   }
-
                   return QuickActionButton(
                     title: item['name']!,
                     icon: item['icon'],
@@ -424,6 +299,7 @@ class SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Mengembalikan gaya kartu ke tema terang
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -480,6 +356,7 @@ class QuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Mengembalikan gaya tombol ke tema terang
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
