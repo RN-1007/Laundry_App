@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
   final String adminEmail;
-  const ProfilePage({super.key, required this.adminEmail});
+  final VoidCallback onLogout; // Menerima fungsi logout
+
+  const ProfilePage({
+    super.key,
+    required this.adminEmail,
+    required this.onLogout, // Tambahkan di constructor
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,25 +32,31 @@ class ProfilePage extends StatelessWidget {
                     child: Icon(Icons.person, size: 50, color: Colors.white),
                   ),
                   const SizedBox(width: 20),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Admin Utama",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                  // --- PERUBAHAN DI SINI: Menambahkan Expanded ---
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Admin Utama",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        adminEmail,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade600,
+                        const SizedBox(height: 4),
+                        // Text email sekarang akan wrap jika terlalu panjang
+                        Text(
+                          adminEmail,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                          overflow: TextOverflow
+                              .ellipsis, // Opsi tambahan jika ingin ellipsis
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -81,6 +93,37 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
+
+          // Pengaturan Akun (Card kosong di kode Anda, saya isi dengan placeholder)
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            //
+          ),
+
+          // Tombol Logout
+          const SizedBox(height: 20),
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            color: Colors.red[50], // Warna latar yang sedikit merah
+            child: ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text(
+                'Logout',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.red,
+                ),
+              ),
+              onTap: onLogout, // Memanggil fungsi logout saat diklik
+            ),
+          ),
+          const SizedBox(height: 80), // Padding tambahan untuk Bottom Nav Bar
         ],
       ),
     );
@@ -100,17 +143,17 @@ class ProfilePage extends StatelessWidget {
   }
 
   // Widget helper untuk baris aksi
-  // ListTile _buildActionTile(
-  //   BuildContext context, {
-  //   required IconData icon,
-  //   required String title,
-  //   required VoidCallback onTap,
-  // }) {
-  //   return ListTile(
-  //     leading: Icon(icon, color: Colors.deepPurple),
-  //     title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-  //     trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-  //     onTap: onTap,
-  //   );
-  // }
+  ListTile _buildActionTile(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.deepPurple),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+      onTap: onTap,
+    );
+  }
 }

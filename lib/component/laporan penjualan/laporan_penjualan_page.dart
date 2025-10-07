@@ -1,6 +1,7 @@
+import 'package:flutter/foundation.dart'; // Import untuk mendeteksi platform web (kIsWeb)
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:auto_size_text/auto_size_text.dart'; // Import auto_size_text
+import 'package:auto_size_text/auto_size_text.dart';
 import '../../models/order_model.dart';
 import '../../models/satuan_order_model.dart';
 import '../../models/kiloan_order_model.dart';
@@ -90,70 +91,62 @@ class _LaporanPenjualanPageState extends State<LaporanPenjualanPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Laporan Penjualan')),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: Colors.white,
-            child: SegmentedButton<ReportPeriod>(
-              segments: const [
-                ButtonSegment(
-                  value: ReportPeriod.today,
-                  label: Text('Hari Ini'),
-                ),
-                ButtonSegment(
-                  value: ReportPeriod.thisWeek,
-                  label: Text('Minggu Ini'),
-                ),
-                ButtonSegment(
-                  value: ReportPeriod.thisMonth,
-                  label: Text('Bulan Ini'),
-                ),
-                ButtonSegment(
-                  value: ReportPeriod.allTime,
-                  label: Text('Semua'),
-                ),
-              ],
-              selected: {_selectedPeriod},
-              onSelectionChanged: (newSelection) {
-                setState(() {
-                  _selectedPeriod = newSelection.first;
-                  _filterOrders();
-                });
-              },
+      // --- PERUBAHAN UTAMA: Menggunakan SingleChildScrollView agar tidak overflow di mobile ---
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              color: Colors.white,
+              child: SegmentedButton<ReportPeriod>(
+                segments: const [
+                  ButtonSegment(
+                    value: ReportPeriod.today,
+                    label: Text('Hari Ini'),
+                  ),
+                  ButtonSegment(
+                    value: ReportPeriod.thisWeek,
+                    label: Text('Minggu Ini'),
+                  ),
+                  ButtonSegment(
+                    value: ReportPeriod.thisMonth,
+                    label: Text('Bulan Ini'),
+                  ),
+                  ButtonSegment(
+                    value: ReportPeriod.allTime,
+                    label: Text('Semua'),
+                  ),
+                ],
+                selected: {_selectedPeriod},
+                onSelectionChanged: (newSelection) {
+                  setState(() {
+                    _selectedPeriod = newSelection.first;
+                    _filterOrders();
+                  });
+                },
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              // --- PERUBAHAN 1: Memberi lebih banyak ruang vertikal pada kartu ---
-              childAspectRatio: 1.8,
-              children: [
-                _buildSummaryCard(
-                  'Total Pendapatan',
-                  currencyFormatter.format(totalPendapatan),
-                  Icons.monetization_on,
-                  Colors.green,
-                ),
-                _buildSummaryCard(
-                  'Total Pesanan',
-                  '$totalPesanan Pesanan',
-                  Icons.receipt_long,
-                  Colors.blue,
-                ),
-              ],
+
+            // Widget ringkasan yang responsif
+            _buildResponsiveSummary(
+              currencyFormatter,
+              totalPendapatan,
+              totalPesanan,
             ),
-          ),
-          const Divider(height: 1),
-          Expanded(
-            child: _filteredOrders.isEmpty
-                ? const Center(child: Text('Tidak ada data untuk periode ini.'))
+
+            const Divider(height: 1),
+
+            // Konten list di bawahnya
+            _filteredOrders.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: Center(
+                      child: Text('Tidak ada data untuk periode ini.'),
+                    ),
+                  )
                 : ListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16),
                     children: [
                       _buildTopListCard(
@@ -169,9 +162,64 @@ class _LaporanPenjualanPageState extends State<LaporanPenjualanPage> {
                       ),
                     ],
                   ),
-          ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+
+  // Widget baru untuk menampilkan ringkasan secara responsif
+  Widget _buildResponsiveSummary(
+    NumberFormat currencyFormatter,
+    double totalPendapatan,
+    int totalPesanan,
+  ) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Tentukan apakah layout untuk web atau mobile berdasarkan lebar layar
+        final bool isWebView = kIsWeb || constraints.maxWidth > 500;
+
+        final summaryCards = [
+          _buildSummaryCard(
+            'Total Pendapatan',
+            currencyFormatter.format(totalPendapatan),
+            Icons.monetization_on,
+            Colors.green,
+          ),
+          _buildSummaryCard(
+            'Total Pesanan',
+            '$totalPesanan Pesanan',
+            Icons.receipt_long,
+            Colors.blue,
+          ),
+        ];
+
+        // Jika web, tampilkan sebagai Row
+        if (isWebView) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(child: summaryCards[0]),
+                const SizedBox(width: 16),
+                Expanded(child: summaryCards[1]),
+              ],
+            ),
+          );
+        }
+
+        // Jika mobile, tampilkan sebagai Column
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: Column(
+            children: [
+              summaryCards[0],
+              const SizedBox(height: 16),
+              summaryCards[1],
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -213,7 +261,6 @@ class _LaporanPenjualanPageState extends State<LaporanPenjualanPage> {
     return Map.fromEntries(sortedCustomers.take(5));
   }
 
-  // --- PERUBAHAN 2: Memperbaiki tata letak kartu agar lebih responsif ---
   Widget _buildSummaryCard(
     String title,
     String value,
@@ -224,35 +271,34 @@ class _LaporanPenjualanPageState extends State<LaporanPenjualanPage> {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
           children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: Icon(icon, color: color, size: 28),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                AutoSizeText(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+            Icon(icon, color: color, size: 32),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  minFontSize: 14, // Ukuran font minimum
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  AutoSizeText(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    minFontSize: 14,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -265,7 +311,6 @@ class _LaporanPenjualanPageState extends State<LaporanPenjualanPage> {
     required IconData icon,
     required Map<String, int> data,
   }) {
-    // ... (kode ini tidak perlu diubah)
     return Card(
       elevation: 2,
       child: Padding(

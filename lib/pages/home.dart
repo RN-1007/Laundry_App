@@ -127,7 +127,7 @@ class HomePage extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: (crossAxisCount == 2) ? 1.6 : 2.2,
+                childAspectRatio: (crossAxisCount == 2) ? 1.3 : 2.2,
                 children: [
                   SummaryCard(
                     title: "Total Pendapatan",

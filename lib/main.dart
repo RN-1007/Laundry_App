@@ -29,16 +29,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // --- MENGEMBALIKAN TEMA TERANG ---
     return MaterialApp(
       title: 'Laundry Admin',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
-        scaffoldBackgroundColor: Colors.grey.shade50, // Latar belakang terang
+        scaffoldBackgroundColor: Colors.grey.shade50,
         appBarTheme: const AppBarTheme(
-          // AppBar tetap gelap
           backgroundColor: Color(0xff1C1C27),
           foregroundColor: Colors.white,
           elevation: 0,
@@ -93,7 +91,10 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   final autoSizeGroup = AutoSizeGroup();
   final iconList = <IconData>[Icons.dashboard_rounded, Icons.person_rounded];
-  final pageTitles = ['Dashboard', 'Profil Admin'];
+  final pageTitles = [
+    'Fena Laundry',
+    'Fena Laundry',
+  ]; // Judul diubah agar lebih sesuai
   final navLabels = ['Dashboard', 'Profil'];
 
   @override
@@ -276,15 +277,36 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         onUpdatePromo: _updatePromo,
         onDeletePromo: _deletePromo,
       ),
-      ProfilePage(adminEmail: widget.username),
+      // Meneruskan fungsi logout ke ProfilePage
+      ProfilePage(adminEmail: widget.username, onLogout: _logout),
     ];
 
     return Scaffold(
       extendBody: true,
-      appBar: AppBar(
-        title: Text(pageTitles[_bottomNavIndex]),
-        // Menentukan warna AppBar secara spesifik di sini, mengabaikan tema terang global
-        backgroundColor: const Color(0xff1C1C27),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xff252533),
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(32),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                spreadRadius: 1,
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            titleSpacing: 40.0,
+            title: Text(pageTitles[_bottomNavIndex]),
+            actions: const [],
+          ),
+        ),
       ),
       body: IndexedStack(index: _bottomNavIndex, children: pages),
       floatingActionButton: ScaleTransition(
@@ -322,7 +344,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             ],
           );
         },
-        backgroundColor: const Color(0xff252533), // Nav Bar tetap gelap
+        backgroundColor: const Color(0xff252533),
         activeIndex: _bottomNavIndex,
         splashColor: const Color(0xff8A3FFC).withOpacity(0.5),
         notchSmoothness: NotchSmoothness.verySmoothEdge,
@@ -331,7 +353,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         rightCornerRadius: 32,
         onTap: (index) => setState(() => _bottomNavIndex = index),
         shadow: BoxShadow(
-          color: Colors.black.withOpacity(0.5),
+          color: Colors.black.withOpacity(0.3),
           spreadRadius: 0,
           blurRadius: 15,
         ),
