@@ -103,11 +103,16 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Silakan masuk untuk mengelola bisnis Anda",
+                          "coba ini saya ubah",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
-                            color: Colors.white.withOpacity(0.8),
+                            color: const Color.fromARGB(
+                              255,
+                              0,
+                              0,
+                              0,
+                            ).withOpacity(0.8),
                           ),
                         ),
                         const SizedBox(height: 32),
