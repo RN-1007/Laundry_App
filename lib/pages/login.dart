@@ -103,15 +103,15 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "coba ini saya ubah",
+                          "Kelola Bisnis Laundry Anda dengan Mudah",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
                             color: const Color.fromARGB(
                               255,
-                              0,
-                              0,
-                              0,
+                              255,
+                              255,
+                              255,
                             ).withOpacity(0.8),
                           ),
                         ),
