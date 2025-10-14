@@ -6,9 +6,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'pages/login.dart';
 import 'pages/home.dart';
 import 'pages/profile.dart';
-import 'splash/splash_screen.dart';
+import '/splash/splash_screen.dart';
 
-// Import semua model dan halaman yang dibutuhkan
 import 'models/corporate_partner_model.dart';
 import 'models/customer_model.dart';
 import 'models/kiloan_order_model.dart';
